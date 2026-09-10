@@ -238,6 +238,20 @@ input,select,textarea{font-family:inherit;}
 .kv-row:last-child{border-bottom:none;}
 .kv-row .k{color:var(--text-dim);}
 .kv-row .v{font-weight:600;font-family:var(--mono);}
+.variant-manage-row{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border-soft);}
+.variant-manage-row:last-child{border-bottom:none;}
+.variant-manage-row.low .vm-label{color:var(--red);}
+.vm-info{flex:1;min-width:0;}
+.vm-label{font-weight:700;font-size:13.5px;}
+.vm-sub{font-size:11px;margin-top:2px;}
+.vm-qty{font-family:var(--display);font-weight:600;font-size:18px;flex-shrink:0;text-align:right;}
+.vm-unit{display:block;font-family:var(--body);font-weight:500;font-size:10px;color:var(--text-dim);text-transform:uppercase;}
+.vm-actions{display:flex;gap:6px;flex-shrink:0;}
+.vm-actions .icon-btn{width:32px;height:32px;font-size:18px;font-weight:700;}
+.variant-row{border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:10px;}
+.variant-row .removeVariantBtn{margin-top:6px;}
+.variant-low-hint{font-size:11.5px;margin-top:-4px;margin-bottom:10px;}
+.variant-low-hint.low{color:var(--red);}
 
 .qty-big{text-align:center;padding:22px 0;}
 .qty-big .n{font-family:var(--display);font-size:52px;font-weight:600;line-height:1;}
@@ -656,7 +670,7 @@ function showRequestPopup(req){
     <div class="notif-popup-icon">${iconBell()}</div>
     <div class="notif-popup-body">
       <div class="t">${esc(req.requestedByName)} requested stock</div>
-      <div class="d">${req.qty} × ${esc(req.productName)}${req.note?` — ${esc(req.note)}`:''}</div>
+      <div class="d">${req.qty} × ${esc(req.productName)}${req.variantLabel?` (${esc(req.variantLabel)})`:''}${req.note?` — ${esc(req.note)}`:''}</div>
       <div class="notif-popup-actions">
         <button class="link-btn" data-popup-view>Review</button>
         <button class="link-btn" data-popup-dismiss style="color:var(--text-faint);">Dismiss</button>
@@ -671,6 +685,29 @@ function showRequestPopup(req){
   setTimeout(remove, 9000);
 }
 function findProduct(id){ return state.products.find(p=>p.id===id); }
+/* =========================================================
+   VARIANTS (color/size breakdown per product)
+   Older saved products only have flat p.color/p.size/p.qty —
+   normalizeProducts() below upgrades those in-memory into a
+   single-row p.variants array the first time they're loaded,
+   so every product can be treated uniformly from here on.
+   ========================================================= */
+function normalizeProducts(list){
+  (list||[]).forEach(p=>{
+    if(!p.variants || !p.variants.length){
+      p.variants = [{
+        id: uid('v'), color: p.color||'', size: p.size||'',
+        qty: p.qty||0, reorderLevel: (typeof p.reorderLevel==='number' ? p.reorderLevel : 5)
+      }];
+    }
+  });
+  return list||[];
+}
+function findVariant(p, variantId){ return p && (p.variants||[]).find(v=>v.id===variantId); }
+function variantLabel(v){ return [v.color, v.size].filter(Boolean).join(' / ') || 'Standard'; }
+function productTotalQty(p){ return (p.variants||[]).reduce((s,v)=>s+(v.qty||0),0); }
+function variantIsLow(v){ return (v.qty||0) <= (typeof v.reorderLevel==='number' ? v.reorderLevel : 0); }
+function productIsLow(p){ return (p.variants||[]).some(variantIsLow); }
 function categories(){
   const set = new Set(state.products.map(p=>p.category).filter(Boolean));
   return Array.from(set).sort();
@@ -720,7 +757,7 @@ async function initData(){
   }
   state.users = users;
   const stock = await loadStock();
-  state.products = stock.products || [];
+  state.products = normalizeProducts(stock.products || []);
   state.history = stock.history || [];
   state.lastSnapshot = JSON.stringify(stock);
   state.requests = await loadRequests();
@@ -770,7 +807,7 @@ async function refreshFromServer(){
   const snap = JSON.stringify(stock);
   if(snap !== state.lastSnapshot){
     state.lastSnapshot = snap;
-    state.products = stock.products || [];
+    state.products = normalizeProducts(stock.products || []);
     state.history = stock.history || [];
     if(['dashboard','products','detail','history'].includes(state.view)) render();
   }
@@ -787,12 +824,12 @@ async function refreshFromServer(){
         // brand new request
         if(isAdmin()){
           showRequestPopup(r);
-          sendSystemNotification(`${r.requestedByName} requested stock`, `${r.qty} × ${r.productName}${r.note?` — ${r.note}`:''}`);
+          sendSystemNotification(`${r.requestedByName} requested stock`, `${r.qty} × ${r.productName}${r.variantLabel?` (${r.variantLabel})`:''}${r.note?` — ${r.note}`:''}`);
         }
       } else if(prev.status === 'pending' && r.status !== 'pending' && !isAdmin() && r.requestedByUsername === state.currentUser.username){
-        toast(`Your request for ${r.productName} was ${r.status}`, r.status==='fulfilled'?'success':'error');
+        toast(`Your request for ${r.productName}${r.variantLabel?` (${r.variantLabel})`:''} was ${r.status}`, r.status==='fulfilled'?'success':'error');
         if(r.status === 'fulfilled'){
-          sendSystemNotification('StockFlow', `Your request for ${r.productName} was fulfilled`);
+          sendSystemNotification('StockFlow', `Your request for ${r.productName}${r.variantLabel?` (${r.variantLabel})`:''} was fulfilled`);
         }
       }
     }
@@ -968,8 +1005,8 @@ function renderView(){
    ========================================================= */
 function renderDashboard(){
   const totalProducts = state.products.length;
-  const totalUnits = state.products.reduce((s,p)=>s+(p.qty||0),0);
-  const lowStock = state.products.filter(p=>p.qty <= (p.reorderLevel||0));
+  const totalUnits = state.products.reduce((s,p)=>s+productTotalQty(p),0);
+  const lowStock = state.products.filter(productIsLow);
   const todayKey = new Date().toDateString();
   const todaysMoves = state.history.filter(h=>dayKey(h.timestamp)===todayKey).length;
   const recent = [...state.history].sort((a,b)=>b.timestamp-a.timestamp).slice(0,8);
@@ -985,7 +1022,7 @@ function renderDashboard(){
     <div class="alert-banner-icon">${iconBell()}</div>
     <div>
       <div class="t">${pendingReq.length} stock request${pendingReq.length>1?'s':''} waiting</div>
-      <div class="d">${pendingReq.slice(0,3).map(r=>`${esc(r.requestedByName)} wants ${r.qty} × ${esc(r.productName)}`).join(', ')}${pendingReq.length>3?` +${pendingReq.length-3} more`:''} — tap to review</div>
+      <div class="d">${pendingReq.slice(0,3).map(r=>`${esc(r.requestedByName)} wants ${r.qty} × ${esc(r.productName)}${r.variantLabel?` (${esc(r.variantLabel)})`:''}`).join(', ')}${pendingReq.length>3?` +${pendingReq.length-3} more`:''} — tap to review</div>
     </div>
   </div>` : ''}
 
@@ -1018,7 +1055,7 @@ function renderFeedItem(h){
   <div class="feed-item" data-history-id="${h.id}">
     ${img ? `<div class="feed-thumb"><img src="${img}" alt=""></div>` : `<div class="feed-dot ${isIn?'in':'out'}">${isIn ? iconIn() : iconOut()}</div>`}
     <div class="feed-body">
-      <div class="t1">${img?`<span class="feed-dir ${isIn?'in':'out'}">${isIn ? iconIn() : iconOut()}</span>`:''}${isIn?'+':'−'}${h.qty} ${esc(h.productName)}</div>
+      <div class="t1">${img?`<span class="feed-dir ${isIn?'in':'out'}">${isIn ? iconIn() : iconOut()}</span>`:''}${isIn?'+':'−'}${h.qty} ${esc(h.productName)}${h.variantLabel?` <span class="faint" style="font-weight:500;">(${esc(h.variantLabel)})</span>`:''}</div>
       <div class="t2">${isIn?'Manufactured':'Sent'} by ${esc(h.user)}${h.note?` · ${esc(h.note)}`:''}</div>
       <div class="t3">${dt.full}</div>
     </div>
@@ -1032,9 +1069,10 @@ function renderFeedItem(h){
 function renderProducts(){
   const q = state.searchQuery.trim().toLowerCase();
   let list = state.products.filter(p=>{
-    if(q && !(p.name.toLowerCase().includes(q) || (p.sku||'').toLowerCase().includes(q) || (p.barcode||'').includes(q) || (p.color||'').toLowerCase().includes(q) || (p.size||'').toLowerCase().includes(q))) return false;
+    const variantText = (p.variants||[]).map(v=>`${v.color||''} ${v.size||''}`).join(' ').toLowerCase();
+    if(q && !(p.name.toLowerCase().includes(q) || (p.sku||'').toLowerCase().includes(q) || (p.barcode||'').includes(q) || variantText.includes(q))) return false;
     if(state.filterCategory!=='all' && p.category!==state.filterCategory) return false;
-    if(state.filterLowStock && !(p.qty <= (p.reorderLevel||0))) return false;
+    if(state.filterLowStock && !productIsLow(p)) return false;
     return true;
   }).sort((a,b)=>a.name.localeCompare(b.name));
 
@@ -1055,7 +1093,12 @@ function renderProducts(){
   `;
 }
 function renderTicket(p){
-  const low = p.qty <= (p.reorderLevel||0);
+  const variants = p.variants||[];
+  const low = productIsLow(p);
+  const lowCount = variants.filter(variantIsLow).length;
+  const variantSummary = variants.length>1
+    ? `${variants.length} variants`
+    : (variants[0] && (variants[0].color||variants[0].size) ? esc(variantLabel(variants[0])) : '');
   return `
   <div class="ticket ${low?'low':''}" data-open="${p.id}">
     ${low ? `<div class="hazard-edge"></div>` : ''}
@@ -1063,15 +1106,15 @@ function renderTicket(p){
       <div class="ticket-img">${p.image ? `<img src="${p.image}" alt="">` : iconBox()}</div>
       <div class="ticket-info">
         <div class="name">${esc(p.name)}</div>
-        <div class="cat">${esc(p.category||'Uncategorized')}${(p.color||p.size)?` · ${esc([p.color,p.size].filter(Boolean).join(' / '))}`:''}</div>
+        <div class="cat">${esc(p.category||'Uncategorized')}${variantSummary?` · ${variantSummary}`:''}</div>
         <div class="sku">SKU ${esc(p.sku||'—')}</div>
       </div>
-      <div class="ticket-qty"><div class="n">${p.qty}</div><div class="u">${esc(p.unit||'units')}</div></div>
+      <div class="ticket-qty"><div class="n">${productTotalQty(p)}</div><div class="u">${esc(p.unit||'units')}</div></div>
     </div>
     <div class="ticket-divider"></div>
     <div class="ticket-bottom">
       <span class="code">⎯ ${esc(p.barcode)}</span>
-      ${low ? `<span class="low-tag">Low stock</span>` : `<span class="faint" style="font-size:11px;">Reorder at ${p.reorderLevel||0}</span>`}
+      ${low ? `<span class="low-tag">${variants.length>1?`${lowCount} low`:'Low stock'}</span>` : `<span class="faint" style="font-size:11px;">${variants.length>1?`${variants.length} variants tracked`:`Reorder at ${variants[0]?variants[0].reorderLevel||0:0}`}</span>`}
     </div>
   </div>`;
 }
@@ -1081,7 +1124,9 @@ function renderTicket(p){
    ========================================================= */
 function renderAddEditProduct(){
   const editing = state.editingProductId ? findProduct(state.editingProductId) : null;
-  const p = editing || { name:'', sku:'', category:'', color:'', size:'', unit:'units', reorderLevel:5, qty:0, barcode: genBarcode(), image:'' };
+  const p = editing || { name:'', sku:'', category:'', unit:'units', barcode: genBarcode(), image:'' };
+  const variants = editing ? editing.variants : [{ id:'', color:'', size:'', qty:0, reorderLevel:5 }];
+  const existingIds = new Set(editing ? editing.variants.map(v=>v.id) : []);
   return `
   <div class="page-head">
     <div><h2>${editing? 'Edit Product' : 'New Product'}</h2><div class="sub">${editing? 'Update product details' : 'Create a stock ticket'}</div></div>
@@ -1093,28 +1138,12 @@ function renderAddEditProduct(){
       <input type="file" accept="image/*" id="imageInput">
     </label>
   </div>
-  <div class="field"><label>Product name</label><input id="fName" type="text" value="${esc(p.name)}" placeholder="e.g. Steel Hinge 40mm"></div>
+  <div class="field"><label>Product name</label><input id="fName" type="text" value="${esc(p.name)}" placeholder="e.g. Oxford Leather Belt"></div>
   <div class="field-row">
-    <div class="field"><label>SKU</label><input id="fSku" type="text" value="${esc(p.sku)}" placeholder="e.g. HNG-040"></div>
-    <div class="field"><label>Category</label><input id="fCategory" type="text" value="${esc(p.category)}" placeholder="e.g. Hardware"></div>
+    <div class="field"><label>SKU</label><input id="fSku" type="text" value="${esc(p.sku)}" placeholder="e.g. BLT-OX"></div>
+    <div class="field"><label>Category</label><input id="fCategory" type="text" value="${esc(p.category)}" placeholder="e.g. Belts"></div>
   </div>
-  <div class="field-row">
-    <div class="field">
-      <label>Color</label>
-      <select id="fColor">${colorOptions(p.color)}</select>
-      <input id="fColorOther" type="text" placeholder="Enter color" value="${p.color && !COLOR_OPTIONS.includes(p.color)?esc(p.color):''}" style="margin-top:6px;${p.color && !COLOR_OPTIONS.includes(p.color)?'':'display:none;'}">
-    </div>
-    <div class="field">
-      <label>Size</label>
-      <select id="fSize">${sizeOptions(p.size)}</select>
-      <input id="fSizeOther" type="text" placeholder="Enter size" value="${p.size && !SIZE_OPTIONS.includes(p.size)?esc(p.size):''}" style="margin-top:6px;${p.size && !SIZE_OPTIONS.includes(p.size)?'':'display:none;'}">
-    </div>
-  </div>
-  <div class="field-row">
-    <div class="field"><label>Unit</label><input id="fUnit" type="text" value="${esc(p.unit)}" placeholder="units, kg, boxes…"></div>
-    <div class="field"><label>Reorder level</label><input id="fReorder" type="number" min="0" value="${p.reorderLevel}"></div>
-  </div>
-  ${!editing ? `<div class="field"><label>Starting quantity</label><input id="fQty" type="number" min="0" value="${p.qty}"></div>` : ''}
+  <div class="field"><label>Unit</label><input id="fUnit" type="text" value="${esc(p.unit)}" placeholder="units, pairs, boxes…"></div>
   <div class="field">
     <label>Barcode</label>
     <div class="field-row">
@@ -1122,12 +1151,48 @@ function renderAddEditProduct(){
       <button class="btn btn-outline btn-sm" id="regenBarcode" type="button" style="width:auto;">Regenerate</button>
     </div>
   </div>
+
+  <div class="field">
+    <label>Colors &amp; sizes</label>
+    <div class="faint" style="font-size:11.5px;margin:-2px 0 10px;">Add a row for every color/size combination you stock — each keeps its own quantity and reorder level.</div>
+    <div id="variantRows">${variants.map(v=>variantRowHtml(v, existingIds.has(v.id))).join('')}</div>
+    <button type="button" class="btn btn-outline btn-sm" id="addVariantBtn" style="width:auto;margin-top:4px;">+ Add color / size</button>
+  </div>
+
   <div class="action-row" style="margin-top:8px;">
     <button class="btn btn-outline" id="cancelProductBtn">Cancel</button>
     <button class="btn btn-primary" id="saveProductBtn">${editing?'Save Changes':'Create Product'}</button>
   </div>
   ${editing ? `<button class="btn btn-danger" id="deleteProductBtn" style="margin-top:10px;">Delete Product</button>` : ''}
   `;
+}
+function variantRowHtml(v, isExisting){
+  const vid = v.id || uid('v');
+  const qty = v.qty||0;
+  const reorder = typeof v.reorderLevel==='number' ? v.reorderLevel : 5;
+  return `
+  <div class="variant-row" data-vrow data-vid="${vid}" data-existing="${isExisting?'1':'0'}">
+    <div class="field-row">
+      <div class="field">
+        <label>Color</label>
+        <select class="vColor">${colorOptions(v.color)}</select>
+        <input class="vColorOther" type="text" placeholder="Enter color" value="${v.color && !COLOR_OPTIONS.includes(v.color)?esc(v.color):''}" style="margin-top:6px;${v.color && !COLOR_OPTIONS.includes(v.color)?'':'display:none;'}">
+      </div>
+      <div class="field">
+        <label>Size</label>
+        <select class="vSize">${sizeOptions(v.size)}</select>
+        <input class="vSizeOther" type="text" placeholder="Enter size" value="${v.size && !SIZE_OPTIONS.includes(v.size)?esc(v.size):''}" style="margin-top:6px;${v.size && !SIZE_OPTIONS.includes(v.size)?'':'display:none;'}">
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>${isExisting?'Quantity':'Starting quantity'}</label>
+        <input class="vQty" type="number" min="0" value="${qty}" ${isExisting?'disabled title="Use + Add Manufactured / − Send Stock on the product page to change stock"':''}>
+      </div>
+      <div class="field"><label>Reorder at</label><input class="vReorder" type="number" min="0" value="${reorder}"></div>
+    </div>
+    <button type="button" class="btn btn-outline btn-sm removeVariantBtn" style="width:auto;">Remove this row</button>
+  </div>`;
 }
 
 /* =========================================================
@@ -1136,7 +1201,8 @@ function renderAddEditProduct(){
 function renderDetail(){
   const p = findProduct(state.selectedProductId);
   if(!p){ state.view='products'; return renderProducts(); }
-  const low = p.qty <= (p.reorderLevel||0);
+  const variants = p.variants||[];
+  const low = productIsLow(p);
   const hist = state.history.filter(h=>h.productId===p.id).sort((a,b)=>b.timestamp-a.timestamp);
 
   return `
@@ -1157,25 +1223,23 @@ function renderDetail(){
   </div>
 
   <div class="panel-box qty-big">
-    <div class="n">${p.qty}</div>
-    <div class="l">${esc(p.unit||'units')} in main stock</div>
+    <div class="n">${productTotalQty(p)}</div>
+    <div class="l">${esc(p.unit||'units')} in main stock${variants.length>1?` · ${variants.length} colors/sizes`:''}</div>
   </div>
 
-  ${isAdmin() ? `
-  <div class="action-row">
-    <button class="btn btn-teal" data-stockaction="manufactured">+ Add Manufactured</button>
-    <button class="btn btn-outline" data-stockaction="sent">− Send Stock</button>
-  </div>` : `
+  <div class="section-title">Colors &amp; sizes</div>
+  <div class="panel-box" style="padding:0;">
+    ${variants.map(v=>renderVariantRow(p, v, isAdmin())).join('')}
+  </div>
+
+  ${!isAdmin() ? `
   <div class="action-row">
     <button class="btn btn-primary" data-requeststock="1">${iconSend()} Request Stock</button>
   </div>
-  <div class="footer-note" style="margin-top:0;">View-only account — stock changes are restricted to admins. Send a request above and an admin will be notified.</div>`}
+  <div class="footer-note" style="margin-top:0;">View-only account — stock changes are restricted to admins. Send a request above and an admin will be notified.</div>` : ''}
 
   <div class="panel-box" style="margin-top:16px;">
     <div class="kv-row"><span class="k">SKU</span><span class="v">${esc(p.sku||'—')}</span></div>
-    <div class="kv-row"><span class="k">Color</span><span class="v">${esc(p.color||'—')}</span></div>
-    <div class="kv-row"><span class="k">Size</span><span class="v">${esc(p.size||'—')}</span></div>
-    <div class="kv-row"><span class="k">Reorder level</span><span class="v">${p.reorderLevel||0} ${esc(p.unit||'')}</span></div>
     <div class="kv-row"><span class="k">Added</span><span class="v">${fmtDateTime(p.createdAt).date}</span></div>
     <div class="kv-row"><span class="k">Last updated</span><span class="v">${p.updatedAt? fmtDateTime(p.updatedAt).date : '—'}</span></div>
   </div>
@@ -1187,6 +1251,22 @@ function renderDetail(){
   ${hist.length ? `<div class="panel-box">${hist.slice(0,20).map(renderFeedItem).join('')}</div>` :
     `<div class="empty">${iconClock()}<div class="t">No movements yet</div></div>`}
   `;
+}
+function renderVariantRow(p, v, admin){
+  const low = variantIsLow(v);
+  return `
+  <div class="variant-manage-row ${low?'low':''}" data-variant-manage="${v.id}">
+    <div class="vm-info">
+      <div class="vm-label">${esc(variantLabel(v))}</div>
+      <div class="vm-sub faint">${low?`Low · reorder at ${v.reorderLevel||0}`:`Reorder at ${v.reorderLevel||0}`}</div>
+    </div>
+    <div class="vm-qty">${v.qty||0}<span class="vm-unit">${esc(p.unit||'units')}</span></div>
+    ${admin ? `
+    <div class="vm-actions">
+      <button class="icon-btn" title="Add manufactured stock" data-stockaction="manufactured" data-variantid="${v.id}">+</button>
+      <button class="icon-btn" title="Send stock" data-stockaction="sent" data-variantid="${v.id}">−</button>
+    </div>` : ''}
+  </div>`;
 }
 function renderBarcodeInto(elId, product){
   if(!product) return;
@@ -1549,9 +1629,11 @@ function bindEditParcelModal(parcelId){
 /* =========================================================
    MODALS
    ========================================================= */
-function openStockModal(type){
+function openStockModal(type, variantId){
   const p = findProduct(state.selectedProductId);
   if(!p) return;
+  const v = findVariant(p, variantId) || (p.variants||[])[0];
+  if(!v) return;
   state.modal = ()=> `
   <div class="overlay" id="modalOverlay">
     <div class="modal">
@@ -1559,8 +1641,8 @@ function openStockModal(type){
         <h3>${type==='manufactured'?'Add Manufactured Stock':'Send Stock'}</h3>
         <button class="modal-close" id="modalCloseBtn">${iconClose()}</button>
       </div>
-      <div class="dim" style="font-size:13px;margin-bottom:4px;">${esc(p.name)}</div>
-      <div class="faint" style="font-size:12px;margin-bottom:10px;">Currently ${p.qty} ${esc(p.unit||'units')} in stock</div>
+      <div class="dim" style="font-size:13px;margin-bottom:4px;">${esc(p.name)}${(p.variants||[]).length>1?` — ${esc(variantLabel(v))}`:''}</div>
+      <div class="faint" style="font-size:12px;margin-bottom:10px;">Currently ${v.qty||0} ${esc(p.unit||'units')} in stock</div>
       <div class="stepper">
         <button type="button" id="qtyMinus">−</button>
         <input type="number" id="qtyInput" value="1" min="1">
@@ -1576,10 +1658,10 @@ function openStockModal(type){
     </div>
   </div>`;
   render();
-  bindModal(type, p);
+  bindModal(type, p, v);
 }
 function closeModal(){ state.modal = null; render(); }
-function bindModal(type, p){
+function bindModal(type, p, v){
   const overlay = document.getElementById('modalOverlay');
   overlay.addEventListener('click', e=>{ if(e.target.id==='modalOverlay') closeModal(); });
   document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
@@ -1589,16 +1671,18 @@ function bindModal(type, p){
   document.getElementById('confirmStockBtn').addEventListener('click', async ()=>{
     const amount = Math.max(1, parseInt(qtyInput.value,10)||1);
     const note = document.getElementById('modalNote').value.trim();
-    if(type==='sent' && amount > p.qty){
-      toast(`Only ${p.qty} in stock — can't send ${amount}`, 'error');
+    if(type==='sent' && amount > (v.qty||0)){
+      toast(`Only ${v.qty||0} in stock — can't send ${amount}`, 'error');
       return;
     }
-    p.qty = type==='manufactured' ? p.qty + amount : p.qty - amount;
+    v.qty = type==='manufactured' ? (v.qty||0) + amount : (v.qty||0) - amount;
     p.updatedAt = Date.now();
+    const multi = (p.variants||[]).length>1;
     state.history.push({
-      id: uid('h'), productId: p.id, productName: p.name, sku: p.sku||'',
+      id: uid('h'), productId: p.id, variantId: v.id, variantLabel: multi ? variantLabel(v) : '',
+      productName: p.name, sku: p.sku||'',
       productImage: p.image||'',
-      type, qty: amount, resultingQty: p.qty, note,
+      type, qty: amount, resultingQty: v.qty, note,
       user: state.currentUser.name, username: state.currentUser.username,
       timestamp: Date.now()
     });
@@ -1649,6 +1733,9 @@ function openConfirmModal(opts){
    REQUEST STOCK MODAL (viewer → admin)
    ========================================================= */
 function openRequestModal(p){
+  const variants = p.variants||[];
+  const multi = variants.length>1;
+  const v0 = variants[0];
   state.modal = ()=> `
   <div class="overlay" id="modalOverlay">
     <div class="modal">
@@ -1657,7 +1744,13 @@ function openRequestModal(p){
         <button class="modal-close" id="modalCloseBtn">${iconClose()}</button>
       </div>
       <div class="dim" style="font-size:13px;margin-bottom:4px;">${esc(p.name)}</div>
-      <div class="faint" style="font-size:12px;margin-bottom:10px;">Currently ${p.qty} ${esc(p.unit||'units')} in stock</div>
+      ${multi ? `
+      <div class="field">
+        <label>Color / size</label>
+        <select id="reqVariant">${variants.map(v=>`<option value="${v.id}">${esc(variantLabel(v))} — ${v.qty||0} in stock</option>`).join('')}</select>
+      </div>` : ''}
+      <div class="faint" style="font-size:12px;margin-bottom:6px;" id="reqStockHint">Currently ${v0?v0.qty||0:0} ${esc(p.unit||'units')} in stock</div>
+      ${v0 && variantIsLow(v0) ? `<div class="variant-low-hint low" id="reqLowHint">This color/size is low in stock.</div>` : `<div class="variant-low-hint" id="reqLowHint"></div>`}
       <div class="stepper">
         <button type="button" id="qtyMinus">−</button>
         <input type="number" id="qtyInput" value="1" min="1">
@@ -1674,18 +1767,33 @@ function openRequestModal(p){
   bindRequestModal(p);
 }
 function bindRequestModal(p){
+  const variants = p.variants||[];
   const overlay = document.getElementById('modalOverlay');
   overlay.addEventListener('click', e=>{ if(e.target.id==='modalOverlay') closeModal(); });
   document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
   const qtyInput = document.getElementById('qtyInput');
   document.getElementById('qtyMinus').addEventListener('click', ()=>{ qtyInput.value = Math.max(1, (+qtyInput.value||1)-1); });
   document.getElementById('qtyPlus').addEventListener('click', ()=>{ qtyInput.value = (+qtyInput.value||1)+1; });
+  const reqVariant = document.getElementById('reqVariant');
+  const stockHint = document.getElementById('reqStockHint');
+  const lowHint = document.getElementById('reqLowHint');
+  function refreshHint(){
+    const v = (reqVariant ? findVariant(p, reqVariant.value) : variants[0]) || variants[0];
+    if(!v) return;
+    stockHint.textContent = `Currently ${v.qty||0} ${p.unit||'units'} in stock`;
+    if(variantIsLow(v)){ lowHint.textContent = 'This color/size is low in stock.'; lowHint.classList.add('low'); }
+    else { lowHint.textContent = ''; lowHint.classList.remove('low'); }
+  }
+  if(reqVariant) reqVariant.addEventListener('change', refreshHint);
   document.getElementById('confirmRequestBtn').addEventListener('click', async (e)=>{
     const amount = Math.max(1, parseInt(qtyInput.value,10)||1);
     const note = document.getElementById('modalNote').value.trim();
+    const v = (reqVariant ? findVariant(p, reqVariant.value) : variants[0]) || variants[0];
     const btn = e.currentTarget; btn.disabled = true;
     const req = {
-      id: uid('r'), productId: p.id, productName: p.name, qty: amount, note,
+      id: uid('r'), productId: p.id, variantId: v?v.id:undefined,
+      variantLabel: v && variants.length>1 ? variantLabel(v) : '',
+      productName: p.name, qty: amount, note,
       requestedByName: state.currentUser.name, requestedByUsername: state.currentUser.username,
       status:'pending', timestamp: Date.now(), viewerSeen:true
     };
@@ -1736,7 +1844,7 @@ function renderRequestRow(r, admin){
   <div class="request-row">
     <div class="top">
       <div style="min-width:0;">
-        <div style="font-weight:700;font-size:13.5px;">${esc(r.productName)} <span class="qtybadge">×${r.qty}</span></div>
+        <div style="font-weight:700;font-size:13.5px;">${esc(r.productName)}${r.variantLabel?` <span class="dim" style="font-weight:600;">(${esc(r.variantLabel)})</span>`:''} <span class="qtybadge">×${r.qty}</span></div>
         <div class="faint" style="font-size:11.5px;margin-top:2px;">${admin?`Requested by ${esc(r.requestedByName)} · `:''}${dt.full}</div>
         ${r.note ? `<div class="dim" style="font-size:12px;margin-top:4px;">${esc(r.note)}</div>` : ''}
       </div>
@@ -2013,7 +2121,7 @@ function bindShell(){
       });
     });
     document.querySelectorAll('[data-stockaction]').forEach(b=>{
-      b.addEventListener('click', ()=> openStockModal(b.getAttribute('data-stockaction')));
+      b.addEventListener('click', ()=> openStockModal(b.getAttribute('data-stockaction'), b.getAttribute('data-variantid')));
     });
     const reqStockBtn = document.querySelector('[data-requeststock]');
     if(reqStockBtn) reqStockBtn.addEventListener('click', ()=>{ if(p) openRequestModal(p); });
@@ -2071,12 +2179,28 @@ function bindProductForm(){
     if(file) handleImageFile(file);
   });
 
-  const fColor = document.getElementById('fColor');
-  const fColorOther = document.getElementById('fColorOther');
-  fColor.addEventListener('change', ()=>{ fColorOther.style.display = fColor.value==='__other__' ? '' : 'none'; if(fColor.value==='__other__') fColorOther.focus(); });
-  const fSize = document.getElementById('fSize');
-  const fSizeOther = document.getElementById('fSizeOther');
-  fSize.addEventListener('change', ()=>{ fSizeOther.style.display = fSize.value==='__other__' ? '' : 'none'; if(fSize.value==='__other__') fSizeOther.focus(); });
+  const variantRowsWrap = document.getElementById('variantRows');
+  function bindVariantRow(row){
+    const vColor = row.querySelector('.vColor'), vColorOther = row.querySelector('.vColorOther');
+    vColor.addEventListener('change', ()=>{ vColorOther.style.display = vColor.value==='__other__' ? '' : 'none'; if(vColor.value==='__other__') vColorOther.focus(); });
+    const vSize = row.querySelector('.vSize'), vSizeOther = row.querySelector('.vSizeOther');
+    vSize.addEventListener('change', ()=>{ vSizeOther.style.display = vSize.value==='__other__' ? '' : 'none'; if(vSize.value==='__other__') vSizeOther.focus(); });
+    row.querySelector('.removeVariantBtn').addEventListener('click', ()=>{
+      if(variantRowsWrap.querySelectorAll('[data-vrow]').length <= 1){
+        toast('A product needs at least one color/size row', 'error');
+        return;
+      }
+      row.remove();
+    });
+  }
+  variantRowsWrap.querySelectorAll('[data-vrow]').forEach(bindVariantRow);
+  document.getElementById('addVariantBtn').addEventListener('click', ()=>{
+    const tmp = document.createElement('div');
+    tmp.innerHTML = variantRowHtml({ id: uid('v'), color:'', size:'', qty:0, reorderLevel:5 }, false).trim();
+    const row = tmp.firstElementChild;
+    variantRowsWrap.appendChild(row);
+    bindVariantRow(row);
+  });
 
   document.getElementById('regenBarcode').addEventListener('click', ()=>{
     document.getElementById('fBarcode').value = genBarcode();
@@ -2090,31 +2214,52 @@ function bindProductForm(){
     if(!name){ toast('Product name is required', 'error'); return; }
     const sku = document.getElementById('fSku').value.trim();
     const category = document.getElementById('fCategory').value.trim();
-    const colorSel = document.getElementById('fColor').value;
-    const color = colorSel==='__other__' ? document.getElementById('fColorOther').value.trim() : colorSel;
-    const sizeSel = document.getElementById('fSize').value;
-    const size = sizeSel==='__other__' ? document.getElementById('fSizeOther').value.trim() : sizeSel;
     const unit = document.getElementById('fUnit').value.trim() || 'units';
-    const reorderLevel = Math.max(0, parseInt(document.getElementById('fReorder').value,10) || 0);
     const barcode = document.getElementById('fBarcode').value.trim() || genBarcode();
+
+    const rows = Array.from(variantRowsWrap.querySelectorAll('[data-vrow]'));
+    if(!rows.length){ toast('Add at least one color/size row', 'error'); return; }
+    const newVariants = [];
+    for(const row of rows){
+      const colorSel = row.querySelector('.vColor').value;
+      const color = colorSel==='__other__' ? row.querySelector('.vColorOther').value.trim() : colorSel;
+      const sizeSel = row.querySelector('.vSize').value;
+      const size = sizeSel==='__other__' ? row.querySelector('.vSizeOther').value.trim() : sizeSel;
+      const reorderLevel = Math.max(0, parseInt(row.querySelector('.vReorder').value,10) || 0);
+      const isExisting = row.getAttribute('data-existing')==='1';
+      const vid = row.getAttribute('data-vid');
+      if(isExisting){
+        const orig = findVariant(editing, vid);
+        newVariants.push({ id: vid, color, size, qty: orig ? orig.qty : 0, reorderLevel });
+      } else {
+        const qty = Math.max(0, parseInt(row.querySelector('.vQty').value,10) || 0);
+        newVariants.push({ id: vid, color, size, qty, reorderLevel, _startingQty: qty });
+      }
+    }
+
     const btn = e.currentTarget;
     btn.disabled = true;
     const originalLabel = btn.textContent;
     btn.textContent = 'Saving…';
 
     if(editing){
-      editing.name=name; editing.sku=sku; editing.category=category; editing.color=color; editing.size=size; editing.unit=unit;
-      editing.reorderLevel=reorderLevel; editing.barcode=barcode; editing.image=pendingImage; editing.updatedAt=Date.now();
+      editing.name=name; editing.sku=sku; editing.category=category; editing.unit=unit;
+      editing.barcode=barcode; editing.image=pendingImage; editing.updatedAt=Date.now();
+      editing.variants = newVariants.map(v=>({ id:v.id, color:v.color, size:v.size, qty:v.qty, reorderLevel:v.reorderLevel }));
+      delete editing.color; delete editing.size; delete editing.qty; delete editing.reorderLevel;
+      newVariants.filter(v=>v._startingQty>0).forEach(v=>{
+        state.history.push({ id: uid('h'), productId:editing.id, variantId:v.id, variantLabel: variantLabel(v), productName:name, sku, productImage: pendingImage||'', type:'manufactured', qty:v._startingQty, resultingQty:v._startingQty, note:'Initial stock (new variant)', user: state.currentUser.name, username: state.currentUser.username, timestamp: Date.now() });
+      });
       const ok = await saveStock();
       toast(ok ? 'Product updated' : "Updated locally, but couldn't sync — tap Retry sync at the top", ok?'success':'error');
       state.view='detail'; state.selectedProductId=editing.id; render();
     } else {
-      const qty = Math.max(0, parseInt(document.getElementById('fQty').value,10) || 0);
-      const p = { id: uid('p'), name, sku, category, color, size, unit, reorderLevel, barcode, image: pendingImage, qty, createdAt: Date.now(), updatedAt: Date.now() };
+      const variants = newVariants.map(v=>({ id:v.id, color:v.color, size:v.size, qty:v.qty, reorderLevel:v.reorderLevel }));
+      const p = { id: uid('p'), name, sku, category, unit, barcode, image: pendingImage, variants, createdAt: Date.now(), updatedAt: Date.now() };
       state.products.push(p);
-      if(qty > 0){
-        state.history.push({ id: uid('h'), productId:p.id, productName:name, sku, productImage: pendingImage||'', type:'manufactured', qty, resultingQty:qty, note:'Initial stock', user: state.currentUser.name, username: state.currentUser.username, timestamp: Date.now() });
-      }
+      newVariants.filter(v=>v._startingQty>0).forEach(v=>{
+        state.history.push({ id: uid('h'), productId:p.id, variantId:v.id, variantLabel: variantLabel(v), productName:name, sku, productImage: pendingImage||'', type:'manufactured', qty:v._startingQty, resultingQty:v._startingQty, note:'Initial stock', user: state.currentUser.name, username: state.currentUser.username, timestamp: Date.now() });
+      });
       const ok = await saveStock();
       toast(ok ? 'Product created' : "Created locally, but couldn't sync — tap Retry sync at the top", ok?'success':'error');
       state.selectedProductId = p.id; state.view='detail'; render();
