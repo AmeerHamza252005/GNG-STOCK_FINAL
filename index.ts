@@ -85,13 +85,13 @@ Deno.serve(async (req) => {
         const subs = await getSubscriptionsFor(adminUsernames);
         await notify(subs, {
           title: `${r.requestedByName} requested stock`,
-          body: `${r.qty} × ${r.productName}${r.note ? ` — ${r.note}` : ""}`,
+          body: `${r.qty} × ${r.productName}${r.variantLabel ? ` (${r.variantLabel})` : ""}${r.note ? ` — ${r.note}` : ""}`,
         });
       } else if (prev.status === "pending" && r.status === "fulfilled") {
         const subs = await getSubscriptionsFor([r.requestedByUsername]);
         await notify(subs, {
           title: "StockFlow",
-          body: `Your request for ${r.productName} was fulfilled`,
+          body: `Your request for ${r.productName}${r.variantLabel ? ` (${r.variantLabel})` : ""} was fulfilled`,
         });
       }
     }
