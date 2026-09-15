@@ -262,10 +262,11 @@ body.theme-light .alert-banner .d{color:#B91C3C;}
 .chip.active{background:var(--yellow);color:var(--yellow-ink);border-color:var(--yellow);}
 
 /* ---------- empty state ---------- */
-.empty{text-align:center;padding:50px 20px;color:var(--text-faint);}
-.empty svg{margin-bottom:14px;opacity:.5;}
-.empty .t{font-weight:700;color:var(--text-dim);margin-bottom:4px;}
-.empty .d{font-size:13px;max-width:280px;margin:0 auto;}
+.empty{text-align:center;padding:46px 20px;color:var(--text-faint);}
+.empty-icon{width:60px;height:60px;border-radius:50%;background:var(--panel2);border:1px solid var(--border-soft);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;color:var(--text-dim);}
+.empty-icon svg{width:26px;height:26px;display:block;}
+.empty .t{font-weight:700;color:var(--text-dim);margin-bottom:4px;font-size:14.5px;}
+.empty .d{font-size:13px;max-width:280px;margin:0 auto;line-height:1.55;}
 
 /* ---------- FAB ---------- */
 .fab{position:fixed;bottom:88px;right:calc(50% - 260px + 18px);z-index:19;width:54px;height:54px;border-radius:50%;
@@ -297,6 +298,41 @@ body.theme-light .alert-banner .d{color:#B91C3C;}
 .vm-label{font-weight:700;font-size:13.5px;}
 .color-swatch{display:inline-block;width:13px;height:13px;border-radius:50%;border:1.5px solid var(--border);flex-shrink:0;vertical-align:middle;margin-right:2px;box-shadow:0 0 0 1px rgba(0,0,0,.05) inset;}
 .color-swatch-unknown{background:var(--panel3);border-style:dashed;}
+
+.variant-select{position:relative;}
+.variant-select-trigger{
+  width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;
+  background:var(--panel2);border:1px solid var(--border);color:var(--text);
+  padding:11px 14px;border-radius:8px;font-size:15px;cursor:pointer;transition:border-color .15s;
+  font-family:inherit;text-align:left;
+}
+.variant-select-trigger:hover{border-color:var(--text-dim);}
+.variant-select.open .variant-select-trigger{border-color:var(--yellow);}
+.variant-select-trigger .vs-current{display:flex;align-items:center;gap:9px;min-width:0;flex:1;}
+.variant-select-trigger .vs-current .color-swatch{width:14px;height:14px;margin-right:0;}
+.variant-select-trigger .vs-current-label{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;}
+.variant-select-trigger .vs-current-stock{color:var(--text-dim);font-size:12.5px;flex-shrink:0;white-space:nowrap;}
+.variant-select-trigger .vs-chevron{width:16px;height:16px;color:var(--text-dim);flex-shrink:0;transition:transform .15s;}
+.variant-select.open .vs-chevron{transform:rotate(180deg);}
+.variant-select-menu{
+  position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:40;
+  background:var(--panel2);border:1px solid var(--border);border-radius:10px;
+  max-height:248px;overflow-y:auto;box-shadow:0 12px 30px -8px rgba(0,0,0,.45);
+  padding:5px;
+}
+.variant-select-option{
+  display:flex;align-items:center;gap:10px;padding:10px 10px;border-radius:7px;cursor:pointer;
+}
+.variant-select-option .color-swatch{width:14px;height:14px;margin-right:0;}
+.variant-select-option:hover{background:var(--panel3);}
+.variant-select-option.selected{background:var(--yellow);color:var(--yellow-ink);}
+.variant-select-option.selected .vso-stock{color:var(--yellow-ink);opacity:.75;}
+.variant-select-option .vso-label{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14.5px;font-weight:600;}
+.variant-select-option .vso-stock{font-size:12.5px;color:var(--text-dim);flex-shrink:0;white-space:nowrap;}
+.variant-select-option .vso-stock.low{color:#F59E0B;}
+.variant-select-option.selected .vso-stock.low{color:#7A3E00;}
+.variant-select-option .vso-stock.out{color:var(--red);}
+.variant-select-option.selected .vso-stock.out{color:#7A1220;}
 .color-palette{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px;}
 .hex-row{display:flex;align-items:center;gap:8px;margin-top:8px;}
 .hex-row .vColorHexText{flex:1;font-family:var(--mono);text-transform:uppercase;}
@@ -376,6 +412,32 @@ body.theme-light .alert-banner .d{color:#B91C3C;}
 .parcel-row .info .u{font-size:12px;color:var(--text-dim);margin-top:2px;}
 .parcel-row .info .track{font-size:11.5px;color:var(--text-faint);font-family:var(--mono);margin-top:3px;}
 .parcel-row .actions{display:flex;gap:6px;flex-shrink:0;align-items:center;}
+.parcel-card{padding:14px 12px 14px 14px;border-bottom:1px solid var(--border-soft);border-left:4px solid var(--courier-accent, var(--border));border-radius:6px;margin-bottom:2px;--courier-accent:var(--teal);--courier-dark:var(--teal);--courier-bg:rgba(34,211,238,.12);}
+.parcel-card:last-child{border-bottom:none;}
+.parcel-card.parcel-card-outlined{border:1.5px solid var(--courier-accent);border-radius:10px;margin-bottom:10px;padding:14px 12px 14px 14px;}
+.parcel-card.parcel-card-outlined:last-child{border:1.5px solid var(--courier-accent);}
+.parcel-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:2px;}
+.parcel-card-track{font-family:var(--mono);font-weight:800;font-size:18px;letter-spacing:.01em;color:var(--courier-accent);line-height:1.25;word-break:break-all;}
+.parcel-card-track.none{color:var(--text-faint);font-weight:600;font-size:13px;}
+.parcel-card-actions{display:flex;gap:6px;align-items:center;flex-shrink:0;margin-top:2px;}
+.parcel-card-courier{font-size:11.5px;color:var(--courier-accent);font-weight:700;margin-top:1px;text-transform:uppercase;letter-spacing:.03em;}
+.parcel-card-trackbtn{width:auto !important;display:inline-flex;align-items:center;padding:8px 16px !important;font-size:12.5px !important;font-weight:800 !important;letter-spacing:.02em;margin-top:8px;gap:7px;background:var(--courier-accent) !important;border-color:var(--courier-accent) !important;color:#fff !important;box-shadow:0 2px 10px -2px var(--courier-accent);}
+.parcel-card-trackbtn:active{background:var(--courier-dark) !important;border-color:var(--courier-dark) !important;}
+.parcel-card-datetime{font-weight:700;font-size:13px;color:var(--text-dim);margin-top:7px;}
+.parcel-card-name{font-weight:700;font-size:14.5px;margin-top:7px;}
+.parcel-card-address{font-size:12px;color:var(--text-dim);margin-top:2px;}
+.parcel-card-itemtable{width:100%;border-collapse:collapse;margin-top:10px;font-size:12.5px;border:1px solid var(--border);}
+.parcel-card-itemtable th,.parcel-card-itemtable td{border:1px solid var(--border);padding:5px 8px;text-align:left;}
+.parcel-card-itemtable thead th{background:var(--courier-bg);font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-dim);font-weight:700;}
+.parcel-card-itemtable th.num,.parcel-card-itemtable td.num{text-align:center;width:26px;color:var(--text-faint);}
+.parcel-card-itemtable th.qty,.parcel-card-itemtable td.qty{text-align:center;width:46px;}
+.parcel-card-itemtable td.desc{color:var(--text);}
+.parcel-card-meta{font-size:11.5px;color:var(--text-faint);margin-top:7px;}
+.weight-badge{display:inline-flex;align-items:baseline;gap:4px;font-family:var(--mono);background:linear-gradient(135deg,#F59E0B,#D97706);color:#1a1200;border-radius:7px;padding:4px 10px;margin-top:8px;box-shadow:0 2px 8px -2px rgba(217,119,6,.6);}
+.weight-badge-num{font-size:18px;font-weight:900;line-height:1;}
+.weight-badge-unit{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;}
+.parcel-card-note{font-size:12px;color:var(--text-dim);margin-top:9px;font-style:italic;}
+
 
 .request-row{padding:12px 0;border-bottom:1px solid var(--border-soft);}
 .request-row:last-child{border-bottom:none;}
@@ -403,6 +465,24 @@ body.theme-light .alert-banner .d{color:#B91C3C;}
 .sync-banner svg{width:15px;height:15px;flex-shrink:0;}
 .sync-banner .link-btn{color:#fff;text-decoration:underline;flex-shrink:0;}
 .footer-note{text-align:center;color:var(--text-faint);font-size:11px;margin-top:24px;line-height:1.6;}
+.scan-label-box{background:var(--panel2);border:1px dashed var(--border);border-radius:10px;padding:14px;text-align:center;margin-bottom:16px;}
+.scan-label-box .btn{width:auto;padding:11px 20px;}
+.scan-label-box .hint{font-size:11.5px;color:var(--text-faint);margin-top:8px;line-height:1.5;}
+.scan-label-box.reading .btn svg{animation:spin .9s linear infinite;}
+@keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+.item-rows-head{display:flex;align-items:center;gap:8px;padding:0 44px 4px 26px;}
+.item-rows-head span:first-child{flex:1;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-dim);font-weight:600;}
+.item-rows-head span:last-child{width:56px;flex-shrink:0;text-align:center;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--text-dim);font-weight:600;}
+.item-rows{display:flex;flex-direction:column;gap:8px;margin-bottom:6px;}
+.item-row{display:flex;align-items:center;gap:8px;}
+.item-row-num{width:18px;flex-shrink:0;text-align:center;font-size:12px;color:var(--text-faint);font-weight:700;}
+.item-row .iDesc{flex:1;min-width:0;background:var(--panel2);border:1px solid var(--border);color:var(--text);padding:10px 12px;border-radius:8px;font-size:14px;outline:none;}
+.item-row .iDesc:focus{border-color:var(--yellow);}
+.item-row .iQty{width:56px;flex-shrink:0;background:var(--panel2);border:1px solid var(--border);color:var(--text);padding:10px 6px;border-radius:8px;font-size:14px;text-align:center;outline:none;}
+.item-row .iQty:focus{border-color:var(--yellow);}
+.item-row .removeItemBtn{width:36px;height:36px;flex-shrink:0;background:transparent;border:none;color:var(--text-faint);cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.item-row .removeItemBtn svg{width:17px;height:17px;}
+.item-row .removeItemBtn:hover{color:var(--red);}
 
 /* ---------- floating notification popup ---------- */
 #notifPopupHost{position:fixed;top:0;left:0;right:0;z-index:90;display:flex;flex-direction:column;align-items:center;
@@ -475,10 +555,16 @@ const state = {
   users: [],
   requests: [],
   parcels: [],
+  savedAddresses: [],
+  trackingLinks: {},
   view: 'dashboard',
   searchQuery: '',
   filterCategory: 'all',
   filterLowStock: false,
+  filterParcelCourier: 'all',
+  filterParcelDateFrom: '',
+  filterParcelDateTo: '',
+  filterParcelCustomer: '',
   categorySearch: '',
   selectedProductId: null,
   editingProductId: null,
@@ -606,6 +692,28 @@ async function saveParcels(){
   else state.syncFailed = true;
   return ok;
 }
+async function loadSavedAddresses(){
+  const r = await storageGet('app:addresses', true);
+  return (r && r.list) ? r.list : [];
+}
+async function saveSavedAddresses(){
+  pendingWrites++;
+  const ok = await storageSetReliable('app:addresses', { list: state.savedAddresses }, true);
+  pendingWrites--;
+  if(!ok) state.syncFailed = true;
+  return ok;
+}
+async function loadTrackingLinks(){
+  const r = await storageGet('app:trackinglinks', true);
+  return (r && r.map) ? r.map : {};
+}
+async function saveTrackingLinks(){
+  pendingWrites++;
+  const ok = await storageSetReliable('app:trackinglinks', { map: state.trackingLinks }, true);
+  pendingWrites--;
+  if(!ok) state.syncFailed = true;
+  return ok;
+}
 async function saveSession(u){ await storageSet('session:user', u, false); }
 async function loadSession(){ return await storageGet('session:user', false); }
 async function clearSession(){ try{ localStorage.removeItem('sf:session:user'); }catch(e){} }
@@ -627,6 +735,16 @@ function fmtDateTime(ts){
   return { day, date, time, full: `${day}, ${date} · ${time}` };
 }
 function dayKey(ts){ return new Date(ts).toDateString(); }
+function toDateInputValue(ts){
+  const d = new Date(ts);
+  const pad = n=>String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+}
+function toTimeInputValue(ts){
+  const d = new Date(ts);
+  const pad = n=>String(n).padStart(2,'0');
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
 function toast(msg, type){
   const host = document.getElementById('toastHost');
   const t = document.createElement('div');
@@ -829,6 +947,19 @@ function optionList(current, presets){
 }
 function colorOptions(current){ return optionList(current, COLOR_OPTIONS); }
 function sizeOptions(current){ return optionList(current, SIZE_OPTIONS); }
+function variantStockText(v){ return variantIsOut(v) ? 'Out of stock' : `${v.qty||0} in stock`; }
+function variantStockClass(v){ return variantIsOut(v) ? 'out' : (variantIsLow(v) ? 'low' : ''); }
+function variantCurrentHtml(v){
+  if(!v) return '';
+  return `${renderColorSwatch(v)}<span class="vs-current-label">${esc(variantLabel(v))}</span><span class="vs-current-stock">${variantStockText(v)}</span>`;
+}
+function variantOptionHtml(v, selected){
+  return `<div class="variant-select-option${selected?' selected':''}" data-vid="${v.id}">
+    ${renderColorSwatch(v)}
+    <span class="vso-label">${esc(variantLabel(v))}</span>
+    <span class="vso-stock ${variantStockClass(v)}">${variantStockText(v)}</span>
+  </div>`;
+}
 function resizeImage(file, maxDim, quality){
   maxDim = maxDim || 320; quality = quality || 0.65;
   return new Promise((resolve, reject)=>{
@@ -852,6 +983,29 @@ function resizeImage(file, maxDim, quality){
   });
 }
 
+// Reads a photo of a courier shipping label (DPX, TNT, DHL, etc.) and asks
+// Claude to pull out the structured fields, so the Add Parcel form can be
+// filled automatically instead of retyping everything off the label.
+//
+// This calls a Supabase Edge Function ("extract-label") rather than
+// api.anthropic.com directly — the Anthropic API needs a secret API key
+// and doesn't accept anonymous calls straight from a browser, so the
+// actual Claude call has to happen server-side. See
+// supabase/functions/extract-label for the function to deploy.
+async function extractShippingLabel(file){
+  const dataUrl = await resizeImage(file, 1400, 0.85);
+  const match = /^data:(image\/[a-zA-Z0-9.+-]+);base64,(.*)$/.exec(dataUrl);
+  if(!match) throw new Error('Could not read the photo');
+  const mediaType = match[1];
+  const imageBase64 = match[2];
+  const { data, error } = await supabaseClient.functions.invoke('extract-label', {
+    body: { imageBase64, mediaType }
+  });
+  if(error) throw error;
+  if(!data || typeof data !== 'object') throw new Error('Got an unreadable response');
+  return data;
+}
+
 /* =========================================================
    INIT / DATA LOAD
    ========================================================= */
@@ -870,6 +1024,8 @@ async function initData(){
   state.lastRequestsSnapshot = JSON.stringify(state.requests);
   state.parcels = await loadParcels();
   state.lastParcelsSnapshot = JSON.stringify(state.parcels);
+  state.savedAddresses = await loadSavedAddresses();
+  state.trackingLinks = await loadTrackingLinks();
   state.loaded = true;
 }
 
@@ -980,15 +1136,26 @@ function startPolling(){
 /* =========================================================
    RENDER: ROOT
    ========================================================= */
+let lastRenderedKey = null;
 function render(){
   const app = document.getElementById('app');
   if(!state.currentUser){
     app.innerHTML = renderLogin();
     bindLogin();
+    lastRenderedKey = null;
     return;
   }
   app.innerHTML = renderShell();
   bindShell();
+  // Reset scroll to top whenever we navigate to a different screen (or a
+  // different product's detail page) — but not on re-renders triggered by
+  // in-place edits (typing, qty changes, etc.) within the same screen, so
+  // we don't yank the scroll position while someone's mid-edit.
+  const renderKey = state.view === 'detail' ? `detail:${state.selectedProductId}` : state.view;
+  if(renderKey !== lastRenderedKey){
+    window.scrollTo(0, 0);
+    lastRenderedKey = renderKey;
+  }
   if(state.view === 'scan') setTimeout(initScanner, 50);
   if(state.view === 'detail') setTimeout(()=>renderBarcodeInto('detailBarcode', findProduct(state.selectedProductId)), 30);
 }
@@ -1190,7 +1357,7 @@ function renderDashboard(){
 
   <div class="section-title">Today's activity <span class="faint">${todaysMoves} moves</span></div>
   ${recent.length ? `<div class="panel-box">${recent.map(renderFeedItem).join('')}</div>` :
-    `<div class="empty">${iconClock()}<div class="t">No activity yet</div><div class="d">Stock changes will show up here in real time.</div></div>`}
+    `<div class="empty">${wrapEmptyIcon(iconClock())}<div class="t">No activity yet</div><div class="d">Stock changes will show up here in real time.</div></div>`}
   <div class="footer-note">Data syncs across your team's devices automatically.</div>
   `;
 }
@@ -1248,7 +1415,7 @@ function renderProducts(){
     ${iconChevronDown()}
   </button>
   ${list.length ? list.map(renderTicket).join('') : `
-    <div class="empty">${iconBox()}<div class="t">No products found</div><div class="d">${state.products.length? 'Try a different search or filter.' : (isAdmin() ? 'Tap the + button to add your first product.' : 'Ask an admin to add products.')}</div></div>
+    <div class="empty">${wrapEmptyIcon(iconBox())}<div class="t">No products found</div><div class="d">${state.products.length? 'Try a different search or filter.' : (isAdmin() ? 'Tap the + button to add your first product.' : 'Ask an admin to add products.')}</div></div>
   `}
   `;
 }
@@ -1337,6 +1504,60 @@ function renderAddEditProduct(){
   ${editing ? `<button class="btn btn-danger" id="deleteProductBtn" style="margin-top:10px;">Delete Product</button>` : ''}
   `;
 }
+/* =========================================================
+   PARCEL CONTENTS (itemized description/qty rows, like a
+   packing list) — used on the Add/Edit Parcel forms.
+   ========================================================= */
+function itemRowHtml(item, index){
+  const id = item.id || uid('i');
+  return `
+  <div class="item-row" data-irow data-iid="${id}">
+    <span class="item-row-num">${index+1}</span>
+    <input class="iDesc" type="text" placeholder="e.g. Wool Hat" value="${esc(item.description||'')}">
+    <input class="iQty" type="number" min="1" value="${item.qty||1}">
+    <button type="button" class="removeItemBtn" title="Remove item">${iconTrash()}</button>
+  </div>`;
+}
+function renumberItemRows(wrap){
+  wrap.querySelectorAll('[data-irow]').forEach((row, i)=>{
+    row.querySelector('.item-row-num').textContent = i+1;
+  });
+}
+function bindItemRowsWrap(wrap, addBtn){
+  function bindRow(row){
+    row.querySelector('.removeItemBtn').addEventListener('click', ()=>{
+      if(wrap.querySelectorAll('[data-irow]').length <= 1){
+        row.querySelector('.iDesc').value = '';
+        row.querySelector('.iQty').value = 1;
+        return;
+      }
+      row.remove();
+      renumberItemRows(wrap);
+    });
+  }
+  wrap.querySelectorAll('[data-irow]').forEach(bindRow);
+  addBtn.addEventListener('click', ()=>{
+    const tmp = document.createElement('div');
+    tmp.innerHTML = itemRowHtml({ id: uid('i'), description:'', qty:1 }, wrap.querySelectorAll('[data-irow]').length).trim();
+    const row = tmp.firstElementChild;
+    wrap.appendChild(row);
+    bindRow(row);
+    row.querySelector('.iDesc').focus();
+  });
+}
+function collectItems(wrap){
+  return Array.from(wrap.querySelectorAll('[data-irow]')).map(row=>({
+    id: row.getAttribute('data-iid') || uid('i'),
+    description: row.querySelector('.iDesc').value.trim(),
+    qty: Math.max(1, parseInt(row.querySelector('.iQty').value, 10) || 1)
+  })).filter(it=>it.description);
+}
+function replaceItemRows(wrap, items, addBtn){
+  wrap.innerHTML = (items && items.length ? items : [{id:uid('i'),description:'',qty:1}])
+    .map((it,i)=>itemRowHtml(it,i)).join('');
+  bindItemRowsWrap(wrap, addBtn);
+}
+
 function variantRowHtml(v, isExisting){
   const vid = v.id || uid('v');
   const qty = v.qty||0;
@@ -1434,7 +1655,7 @@ function renderDetail(){
 
   <div class="section-title">Stock history</div>
   ${hist.length ? `<div class="panel-box">${hist.slice(0,20).map(renderFeedItem).join('')}</div>` :
-    `<div class="empty">${iconClock()}<div class="t">No movements yet</div></div>`}
+    `<div class="empty">${wrapEmptyIcon(iconClock())}<div class="t">No movements yet</div><div class="d">Stock added, sent, or requested for this item will show up here.</div></div>`}
   `;
 }
 function renderVariantRow(p, v, admin){
@@ -1580,7 +1801,7 @@ function renderHistory(){
   let lastDay = null;
   let html = '';
   if(!list.length){
-    html = `<div class="empty">${iconClock()}<div class="t">No stock history yet</div><div class="d">Every stock change is logged automatically with date and time.</div></div>`;
+    html = `<div class="empty">${wrapEmptyIcon(iconClock())}<div class="t">No stock history yet</div><div class="d">Every stock change is logged automatically with date and time.</div></div>`;
   } else {
     for(const h of list){
       const dk = dayKey(h.timestamp);
@@ -1593,7 +1814,10 @@ function renderHistory(){
     }
   }
   return `
-  <div class="page-head"><div><h2>Stock History</h2><div class="sub">${state.history.length} logged movements</div></div></div>
+  <div class="page-head">
+    <div><h2>Stock History</h2><div class="sub">${state.history.length} logged movements</div></div>
+    ${isAdmin() && state.history.length ? `<button class="icon-btn" id="clearHistoryBtn" title="Clear all history">${iconTrash()}</button>` : ''}
+  </div>
   <div class="search-bar"><input id="searchInput" type="text" placeholder="Search product or team member…" value="${esc(state.searchQuery)}"></div>
   ${html}
   `;
@@ -1643,50 +1867,224 @@ function renderTeam(){
 }
 
 /* =========================================================
-   PARCELS (outgoing deliveries + Ship24 tracking)
+   PARCELS (outgoing deliveries)
    ========================================================= */
 const STATUS_LABEL = { pending:'Pending', in_transit:'In Transit', delivered:'Delivered', exception:'Exception' };
 
+function courierTheme(courier){
+  const c = (courier||'').toLowerCase();
+  if(c.includes('dpex') || c.includes('dpx')) return { accent:'#3B82F6', dark:'#1D4ED8', bg:'rgba(59,130,246,.14)' };
+  if(c.includes('sky net') || c.includes('skynet') || c.includes('sky-net')) return { accent:'#EF4444', dark:'#B91C1C', bg:'rgba(239,68,68,.14)' };
+  return null;
+}
+function normalizeUrl(u){
+  if(!u) return u;
+  u = u.trim();
+  if(!/^https?:\/\//i.test(u)) u = 'https://' + u.replace(/^\/+/, '');
+  return u;
+}
+function trackShipment(p){
+  const courierKey = (p.courier||'').trim().toLowerCase();
+  const tpl = courierKey ? state.trackingLinks[courierKey] : null;
+  let url;
+  if(tpl && tpl.url){
+    const hasPlaceholder = tpl.url.includes('{tracking}');
+    const raw = hasPlaceholder ? tpl.url.replace('{tracking}', encodeURIComponent(p.trackingNumber||'')) : tpl.url;
+    url = normalizeUrl(raw);
+    if(!hasPlaceholder && isAdmin()) toast(`The saved link for "${tpl.label}" has no {tracking} placeholder, so every parcel opens the same page — edit it below to fix this`, 'error');
+  } else {
+    url = `https://www.google.com/search?q=${encodeURIComponent((p.courier?p.courier+' ':'')+'tracking '+(p.trackingNumber||''))}`;
+    if(isAdmin() && p.courier) toast(`No tracking link saved for "${p.courier}" yet — add one below`, 'error');
+  }
+  window.open(url, '_blank', 'noopener');
+}
+
 function renderParcels(){
-  const sorted = [...state.parcels].sort((a,b)=>b.createdAt-a.createdAt);
+  const couriers = Array.from(new Set(state.parcels.map(p=>(p.courier||'').trim()).filter(Boolean))).sort((a,b)=>a.localeCompare(b));
+  let sorted = [...state.parcels].sort((a,b)=>b.createdAt-a.createdAt);
+  if(state.filterParcelCourier !== 'all'){
+    sorted = sorted.filter(p=>(p.courier||'').trim() === state.filterParcelCourier);
+  }
+  if(state.filterParcelCustomer.trim()){
+    const cq = state.filterParcelCustomer.trim().toLowerCase();
+    sorted = sorted.filter(p=>(p.customerName||'').toLowerCase().includes(cq));
+  }
+  if(state.filterParcelDateFrom){
+    const fromTs = new Date(state.filterParcelDateFrom + 'T00:00:00').getTime();
+    sorted = sorted.filter(p=>p.createdAt >= fromTs);
+  }
+  if(state.filterParcelDateTo){
+    const toTs = new Date(state.filterParcelDateTo + 'T23:59:59.999').getTime();
+    sorted = sorted.filter(p=>p.createdAt <= toTs);
+  }
+  const filtersActive = state.filterParcelCourier !== 'all' || state.filterParcelDateFrom || state.filterParcelDateTo || state.filterParcelCustomer.trim();
   return `
-  <div class="page-head"><div><h2>Parcels</h2><div class="sub">${state.parcels.length} tracked</div></div></div>
-  <div class="panel-box">
-    ${sorted.length ? sorted.map(p=>`
-      <div class="parcel-row">
-        <div class="info">
-          <div class="n">${esc(p.customerName)}</div>
-          ${p.note ? `<div class="u">${esc(p.note)}</div>` : ''}
-          ${p.trackingNumber ? `<div class="track">${esc(p.courier||'Courier')} · ${esc(p.trackingNumber)}</div>` : (p.courier ? `<div class="track">${esc(p.courier)}</div>` : '')}
-        </div>
-        <div class="actions">
-          <span class="status-pill ${p.status}">${STATUS_LABEL[p.status]||p.status}</span>
-          ${isAdmin() ? `
-          <button class="icon-btn" data-editparcel="${p.id}" title="Edit parcel">${iconEdit()}</button>
-          <button class="icon-btn" data-delparcel="${p.id}" style="color:#ff8f92;" title="Delete parcel">${iconTrash()}</button>` : ''}
-        </div>
+  <div class="page-head"><div><h2>Parcels</h2><div class="sub">${sorted.length} of ${state.parcels.length} tracked</div></div></div>
+  <div class="panel-box" style="margin-bottom:12px;">
+    <div class="field-row">
+      <div class="field">
+        <label>Courier</label>
+        <select id="parcelFilterCourier">
+          <option value="all"${state.filterParcelCourier==='all'?' selected':''}>All couriers</option>
+          ${couriers.map(c=>`<option value="${esc(c)}"${state.filterParcelCourier===c?' selected':''}>${esc(c)}</option>`).join('')}
+        </select>
       </div>
-    `).join('') : `<div class="empty" style="padding:24px 0;text-align:center;">${iconTruck()}<div style="margin-top:8px;color:var(--text-dim);font-size:13px;">No parcels yet</div></div>`}
+      <div class="field">
+        <label>Customer name</label>
+        <input id="parcelFilterCustomer" type="text" list="parcelCustomerList" placeholder="Search or pick a saved customer…" value="${esc(state.filterParcelCustomer)}">
+        <datalist id="parcelCustomerList">
+          ${Array.from(new Set(state.savedAddresses.map(a=>a.customerName).filter(Boolean))).sort((a,b)=>a.localeCompare(b)).map(n=>`<option value="${esc(n)}">`).join('')}
+        </datalist>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>From date</label><input id="parcelFilterFrom" type="date" value="${esc(state.filterParcelDateFrom)}"></div>
+      <div class="field"><label>To date</label><input id="parcelFilterTo" type="date" value="${esc(state.filterParcelDateTo)}"></div>
+    </div>
+    ${filtersActive ? `<button type="button" class="btn btn-outline btn-sm" id="parcelFilterClearBtn" style="width:auto;">Clear filters</button>` : ''}
+  </div>
+  <div class="panel-box">
+    ${sorted.length ? sorted.map(p=>{
+      const dt = fmtDateTime(p.createdAt);
+      const itemRows = (p.items && p.items.length) ? p.items.map((i,idx)=>`<tr><td class="num">${idx+1}</td><td class="desc">${esc(i.description)}</td><td class="qty">${i.qty}</td></tr>`).join('') : '';
+      const metaBits = [];
+      if(p.pieces) metaBits.push(`${p.pieces} pc${p.pieces>1?'s':''}`);
+      const theme = courierTheme(p.courier);
+      const themeStyle = theme ? ` style="--courier-accent:${theme.accent};--courier-dark:${theme.dark};--courier-bg:${theme.bg};"` : '';
+      return `
+      <div class="parcel-card${theme ? ' parcel-card-outlined' : ''}"${themeStyle}>
+        <div class="parcel-card-head">
+          <div class="parcel-card-track${p.trackingNumber?'':' none'}">${p.trackingNumber ? esc(p.trackingNumber) : 'No tracking number'}</div>
+          <div class="parcel-card-actions">
+            <span class="status-pill ${p.status}">${STATUS_LABEL[p.status]||p.status}</span>
+            ${isAdmin() ? `
+            <button class="icon-btn" data-editparcel="${p.id}" title="Edit parcel">${iconEdit()}</button>
+            <button class="icon-btn" data-delparcel="${p.id}" style="color:#ff8f92;" title="Delete parcel">${iconTrash()}</button>` : ''}
+          </div>
+        </div>
+        ${p.courier ? `<div class="parcel-card-courier">${esc(p.courier)}</div>` : ''}
+        ${p.weightKg ? `<div class="weight-badge"><span class="weight-badge-num">${p.weightKg}</span><span class="weight-badge-unit">kg</span></div>` : ''}
+        ${p.trackingNumber ? `<button type="button" class="btn btn-outline btn-sm parcel-card-trackbtn" data-trackparcel="${p.id}">${iconExternal()} Track Shipment</button>` : ''}
+        <div class="parcel-card-datetime">${dt.day}, ${dt.date} · ${dt.time}</div>
+        <div class="parcel-card-name">${esc(p.customerName)}</div>
+        ${p.address ? `<div class="parcel-card-address">${esc(p.address)}</div>` : ''}
+        ${itemRows ? `
+        <table class="parcel-card-itemtable">
+          <thead><tr><th class="num">#.</th><th>Description</th><th class="qty">Qty</th></tr></thead>
+          <tbody>${itemRows}</tbody>
+        </table>` : ''}
+        ${metaBits.length ? `<div class="parcel-card-meta">${metaBits.join(' · ')}</div>` : ''}
+        ${p.note ? `<div class="parcel-card-note">${esc(p.note)}</div>` : ''}
+      </div>
+    `;}).join('') : `<div class="empty" style="padding:24px 0;text-align:center;">${wrapEmptyIcon(iconTruck())}<div class="t" style="margin-top:8px;font-size:13px;">${state.parcels.length ? 'No parcels match these filters' : 'No parcels yet'}</div></div>`}
   </div>
 
   ${isAdmin() ? `
   <div class="section-title">Add parcel</div>
   <div class="panel-box">
+    <div class="scan-label-box" id="scanLabelBox">
+      <input type="file" accept="image/*" capture="environment" id="labelPhotoInput" style="display:none;">
+      <button type="button" class="btn btn-outline" id="scanLabelBtn">${iconCamera()} Scan shipping label</button>
+      <div class="hint" id="scanLabelHint">Take a photo of the label and we'll fill in the fields below automatically.</div>
+    </div>
+    ${state.savedAddresses.length ? `
+    <div class="field">
+      <label>Use a saved address</label>
+      <select id="pSavedAddress">
+        <option value="">— Select a saved customer —</option>
+        ${state.savedAddresses.map(a=>`<option value="${a.id}">${esc(a.customerName)}${a.address?` — ${esc(a.address)}`:''}</option>`).join('')}
+      </select>
+    </div>` : ''}
     <div class="field"><label>Customer name</label><input id="pCustomer" type="text" placeholder="e.g. Ahmed Khan"></div>
-    <div class="field"><label>Note (optional)</label><input id="pNote" type="text" placeholder="e.g. 2 × Trail Jacket"></div>
+    <div class="field"><label>Address (optional)</label><input id="pAddress" type="text" placeholder="Street, city, country"></div>
     <div class="field-row">
-      <div class="field"><label>Courier (optional)</label><input id="pCourier" type="text" placeholder="e.g. DPEX, SkyNet, Local rider"></div>
+      <div class="field"><label>Phone (optional)</label><input id="pPhone" type="text" placeholder="e.g. 00447882181674"></div>
+      <div class="field"><label>Pieces</label><input id="pPieces" type="number" min="1" value="1"></div>
+    </div>
+    <label class="check-row" style="display:flex;align-items:center;gap:8px;margin:-4px 0 14px;font-size:13px;" for="pSaveAddress">
+      <input type="checkbox" id="pSaveAddress" style="width:16px;height:16px;">
+      Save this address for next time
+    </label>
+    <div class="field">
+      <label>Package contents</label>
+      <div class="faint" style="font-size:11.5px;margin:-2px 0 8px;">Itemize what's inside — like a packing list.</div>
+      <div class="item-rows-head"><span>Description</span><span>Qty</span></div>
+      <div class="item-rows" id="pItemRows">${itemRowHtml({id:uid('i'),description:'',qty:1}, 0)}</div>
+      <button type="button" class="btn btn-outline btn-sm" id="addItemBtn" style="width:auto;margin-top:4px;">+ Add item</button>
+    </div>
+    <div class="field"><label>Special instructions / note (optional)</label><input id="pNote" type="text" placeholder="e.g. Samples, fragile, leave with neighbor"></div>
+    <div class="field-row">
+      <div class="field"><label>Courier (optional)</label><input id="pCourier" type="text" placeholder="e.g. DPX, SkyNet, Local rider"></div>
       <div class="field"><label>Tracking number (optional)</label><input id="pTracking" type="text" placeholder="AWB / CN number"></div>
     </div>
-    <div class="dim" style="font-size:12px;margin-bottom:14px;line-height:1.5;">Add a tracking number and, if it's a courier we're connected to, status updates (including delivery) will come in automatically. Otherwise you can always update status manually.</div>
+    <div class="field"><label>Weight, kg (optional)</label><input id="pWeight" type="number" min="0" step="0.01" placeholder="e.g. 11.92"></div>
+    <div class="dim" style="font-size:12px;margin-bottom:14px;line-height:1.5;">Add a tracking number for your records — status (Pending / In Transit / Delivered) is updated manually from the parcel's edit screen.</div>
     <button class="btn btn-primary" id="addParcelBtn">Add Parcel</button>
   </div>
-  <div class="footer-note">Automatic tracking is powered by Ship24 and covers most major couriers. Any courier can still be tracked manually by updating status yourself.</div>
+  <div class="footer-note">"Scan shipping label" reads the photo with Claude and fills the form for you — double-check the details before saving.</div>
+  ${state.savedAddresses.length ? `
+  <div class="section-title">Saved addresses</div>
+  <div class="panel-box">
+    ${state.savedAddresses.map(a=>`
+      <div class="parcel-row">
+        <div class="info">
+          <div class="n">${esc(a.customerName)}</div>
+          ${a.address ? `<div class="u">${esc(a.address)}</div>` : ''}
+          ${a.phone ? `<div class="u">${esc(a.phone)}</div>` : ''}
+        </div>
+        <div class="actions">
+          <button class="icon-btn" data-deladdress="${a.id}" style="color:#ff8f92;" title="Delete saved address">${iconTrash()}</button>
+        </div>
+      </div>
+    `).join('')}
+  </div>
+  ` : ''}
+  <div class="section-title">Courier tracking links</div>
+  <div class="panel-box">
+    <div class="faint" style="font-size:11.5px;margin-bottom:10px;line-height:1.5;">Save one link per courier — it will work for every parcel under that courier. You <strong>must</strong> include <span class="h-mono">{tracking}</span> literally in the URL where the tracking number goes, e.g. https://dpex.com/track-and-trace/?awb={tracking} — this gets swapped for each parcel's own tracking number when you tap "Track Shipment".</div>
+    ${Object.keys(state.trackingLinks).length ? Object.values(state.trackingLinks).map(t=>`
+      <div class="parcel-row">
+        <div class="info">
+          <div class="n">${esc(t.label)}</div>
+          <div class="u" style="word-break:break-all;">${esc(t.url)}</div>
+        </div>
+        <div class="actions">
+          <button class="icon-btn" data-deltrackinglink="${esc(t.label.toLowerCase())}" style="color:#ff8f92;" title="Delete link">${iconTrash()}</button>
+        </div>
+      </div>
+    `).join('') : `<div class="dim" style="font-size:12px;padding:4px 0 12px;">No tracking links added yet.</div>`}
+    <div class="field" style="margin-top:10px;"><label>Courier name</label><input id="tlCourier" type="text" placeholder="e.g. DPEX Worldwide — must match the Courier field on parcels"></div>
+    <div class="field"><label>Tracking URL template</label><input id="tlUrl" type="text" placeholder="https://example.com/track?awb={tracking}"></div>
+    <button type="button" class="btn btn-outline btn-sm" id="tlAddBtn" style="width:auto;">+ Add / update link</button>
+  </div>
   ` : ''}
   `;
 }
 
 function bindParcelsView(){
+  const filterCourier = document.getElementById('parcelFilterCourier');
+  if(filterCourier) filterCourier.addEventListener('change', e=>{ state.filterParcelCourier = e.target.value; render(); });
+  const filterFrom = document.getElementById('parcelFilterFrom');
+  if(filterFrom) filterFrom.addEventListener('change', e=>{ state.filterParcelDateFrom = e.target.value; render(); });
+  const filterTo = document.getElementById('parcelFilterTo');
+  if(filterTo) filterTo.addEventListener('change', e=>{ state.filterParcelDateTo = e.target.value; render(); });
+  const filterCustomer = document.getElementById('parcelFilterCustomer');
+  if(filterCustomer) filterCustomer.addEventListener('input', e=>{
+    state.filterParcelCustomer = e.target.value;
+    render();
+    const el = document.getElementById('parcelFilterCustomer');
+    if(el){ el.focus(); el.setSelectionRange(state.filterParcelCustomer.length, state.filterParcelCustomer.length); }
+  });
+  const filterClearBtn = document.getElementById('parcelFilterClearBtn');
+  if(filterClearBtn) filterClearBtn.addEventListener('click', ()=>{
+    state.filterParcelCourier = 'all'; state.filterParcelDateFrom = ''; state.filterParcelDateTo = ''; state.filterParcelCustomer = ''; render();
+  });
+  document.querySelectorAll('[data-trackparcel]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const p = state.parcels.find(x=>x.id===b.getAttribute('data-trackparcel'));
+      if(p) trackShipment(p);
+    });
+  });
   document.querySelectorAll('[data-editparcel]').forEach(b=>{
     b.addEventListener('click', ()=> openEditParcelModal(b.getAttribute('data-editparcel')));
   });
@@ -1710,38 +2108,157 @@ function bindParcelsView(){
       });
     });
   });
+  document.querySelectorAll('[data-deladdress]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const id = b.getAttribute('data-deladdress');
+      const a = state.savedAddresses.find(x=>x.id===id);
+      if(!a) return;
+      openConfirmModal({
+        title: 'Delete saved address?',
+        message: `Delete the saved address for ${a.customerName}? This cannot be undone.`,
+        confirmLabel: 'Delete',
+        danger: true,
+        onConfirm: async ()=>{
+          state.savedAddresses = state.savedAddresses.filter(x=>x.id!==id);
+          const ok = await saveSavedAddresses();
+          state.modal=null;
+          render();
+          toast(ok ? 'Saved address deleted' : "Deleted locally, but couldn't sync — tap Retry sync at the top", ok?'success':'error');
+        }
+      });
+    });
+  });
+  document.querySelectorAll('[data-deltrackinglink]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const key = b.getAttribute('data-deltrackinglink');
+      const t = state.trackingLinks[key];
+      if(!t) return;
+      openConfirmModal({
+        title: 'Delete tracking link?',
+        message: `Delete the tracking link for ${t.label}? This cannot be undone.`,
+        confirmLabel: 'Delete',
+        danger: true,
+        onConfirm: async ()=>{
+          delete state.trackingLinks[key];
+          const ok = await saveTrackingLinks();
+          state.modal=null;
+          render();
+          toast(ok ? 'Tracking link deleted' : "Deleted locally, but couldn't sync — tap Retry sync at the top", ok?'success':'error');
+        }
+      });
+    });
+  });
+  const tlAddBtn = document.getElementById('tlAddBtn');
+  if(tlAddBtn) tlAddBtn.addEventListener('click', async ()=>{
+    const courier = document.getElementById('tlCourier').value.trim();
+    const url = normalizeUrl(document.getElementById('tlUrl').value.trim());
+    if(!courier || !url){ toast('Enter a courier name and a tracking URL', 'error'); return; }
+    if(!url.includes('{tracking}')){
+      toast('The URL must include {tracking} where the tracking number goes, e.g. https://dpex.com/track?awb={tracking} — otherwise every parcel for this courier will open the same page', 'error');
+      return;
+    }
+    tlAddBtn.disabled = true;
+    state.trackingLinks[courier.toLowerCase()] = { label: courier, url };
+    const ok = await saveTrackingLinks();
+    tlAddBtn.disabled = false;
+    if(!ok){ toast("Saved locally, but couldn't sync — tap Retry sync at the top", 'error'); render(); return; }
+    toast('Tracking link saved — it will apply to every parcel with this courier', 'success');
+    render();
+  });
+  const scanBtn = document.getElementById('scanLabelBtn');
+  const scanInput = document.getElementById('labelPhotoInput');
+  const scanBox = document.getElementById('scanLabelBox');
+  const scanHint = document.getElementById('scanLabelHint');
+  const pItemRows = document.getElementById('pItemRows');
+  const addItemBtn = document.getElementById('addItemBtn');
+  if(pItemRows && addItemBtn) bindItemRowsWrap(pItemRows, addItemBtn);
+  const savedAddrSel = document.getElementById('pSavedAddress');
+  if(savedAddrSel){
+    savedAddrSel.addEventListener('change', ()=>{
+      const a = state.savedAddresses.find(x=>x.id===savedAddrSel.value);
+      if(!a) return;
+      document.getElementById('pCustomer').value = a.customerName || '';
+      document.getElementById('pAddress').value = a.address || '';
+      document.getElementById('pPhone').value = a.phone || '';
+      if(a.courier) document.getElementById('pCourier').value = a.courier;
+      savedAddrSel.value = '';
+    });
+  }
+  if(scanBtn && scanInput){
+    scanBtn.addEventListener('click', ()=> scanInput.click());
+    scanInput.addEventListener('change', async ()=>{
+      const file = scanInput.files && scanInput.files[0];
+      scanInput.value = '';
+      if(!file) return;
+      scanBox.classList.add('reading');
+      scanBtn.disabled = true;
+      const origLabel = scanBtn.innerHTML;
+      scanBtn.innerHTML = `${iconCamera()} Reading label…`;
+      scanHint.textContent = 'Give it a few seconds — reading the label with AI.';
+      try{
+        const fields = await extractShippingLabel(file);
+        const set = (id, val)=>{ const el = document.getElementById(id); if(el && val !== undefined && val !== null && val !== '' && val !== 0) el.value = val; };
+        set('pCustomer', fields.customerName);
+        set('pAddress', fields.address);
+        set('pPhone', fields.phone);
+        set('pNote', fields.note);
+        set('pCourier', fields.courier);
+        set('pTracking', fields.trackingNumber);
+        if(fields.pieces) document.getElementById('pPieces').value = fields.pieces;
+        if(fields.weightKg) document.getElementById('pWeight').value = fields.weightKg;
+        if(fields.items && fields.items.length){
+          replaceItemRows(pItemRows, fields.items.map(i=>({ id: uid('i'), description: i.description||'', qty: i.qty||1 })), addItemBtn);
+        }
+        scanHint.textContent = 'Filled in from the label — check the details, then tap Add Parcel.';
+        toast('Label read — review the details below', 'success');
+      }catch(err){
+        console.error('Label scan failed', err);
+        scanHint.textContent = `Couldn't read that photo — ${err && err.message ? err.message : 'try again'}, or fill in the fields manually.`;
+        toast("Couldn't read the label — fill in the fields manually", 'error');
+      }finally{
+        scanBox.classList.remove('reading');
+        scanBtn.disabled = false;
+        scanBtn.innerHTML = origLabel;
+      }
+    });
+  }
   const addBtn = document.getElementById('addParcelBtn');
   if(addBtn) addBtn.addEventListener('click', async (e)=>{
     const customerName = document.getElementById('pCustomer').value.trim();
+    const address = document.getElementById('pAddress').value.trim();
+    const phone = document.getElementById('pPhone').value.trim();
     const note = document.getElementById('pNote').value.trim();
     const courier = document.getElementById('pCourier').value.trim();
     const trackingNumber = document.getElementById('pTracking').value.trim();
+    const pieces = Math.max(1, parseInt(document.getElementById('pPieces').value, 10) || 1);
+    const weightKg = parseFloat(document.getElementById('pWeight').value) || 0;
+    const items = pItemRows ? collectItems(pItemRows) : [];
     if(!customerName){ toast('Customer name is required', 'error'); return; }
+    const saveAddrEl = document.getElementById('pSaveAddress');
+    const shouldSaveAddress = !!(saveAddrEl && saveAddrEl.checked);
     const btn = e.currentTarget; btn.disabled = true;
     const parcel = {
-      id: uid('p'), customerName, note, courier, trackingNumber,
+      id: uid('p'), customerName, address, phone, note, courier, trackingNumber, pieces, weightKg, items,
       status: trackingNumber ? 'in_transit' : 'pending',
-      ship24TrackerId: null,
       addedByUsername: state.currentUser.username, addedByName: state.currentUser.name,
       createdAt: Date.now(), deliveredAt: null,
     };
     state.parcels.push(parcel);
     const ok = await saveParcels();
+    if(shouldSaveAddress){
+      const key = (customerName+'|'+address).toLowerCase();
+      const existing = state.savedAddresses.find(a=>(a.customerName+'|'+a.address).toLowerCase()===key);
+      if(existing){
+        existing.phone = phone; existing.courier = courier;
+      } else {
+        state.savedAddresses.push({ id: uid('a'), customerName, address, phone, courier, createdAt: Date.now() });
+      }
+      await saveSavedAddresses();
+    }
     btn.disabled = false;
     if(!ok){ toast("Saved locally, but couldn't sync — tap Retry sync at the top", 'error'); render(); return; }
-    toast('Parcel added', 'success');
+    toast(shouldSaveAddress ? 'Parcel added and address saved' : 'Parcel added', 'success');
     render();
-    if(trackingNumber){
-      try{
-        const { data, error } = await supabaseClient.functions.invoke('ship24', {
-          body: { action:'register', parcelId: parcel.id, trackingNumber, courier }
-        });
-        if(error) throw error;
-      }catch(err){
-        console.error('Ship24 registration failed', err);
-        toast('Added, but automatic tracking registration failed — you can still update status manually', 'error');
-      }
-    }
   });
 }
 
@@ -1760,12 +2277,28 @@ function renderEditParcelModal(parcelId){
         <h3>Edit Parcel</h3>
         <button class="modal-close" id="modalCloseBtn">${iconClose()}</button>
       </div>
+      <div class="field-row">
+        <div class="field"><label>Date</label><input id="epDate" type="date" value="${toDateInputValue(p.createdAt)}"></div>
+        <div class="field"><label>Time</label><input id="epTime" type="time" value="${toTimeInputValue(p.createdAt)}"></div>
+      </div>
       <div class="field"><label>Customer name</label><input id="epCustomer" type="text" value="${esc(p.customerName)}"></div>
-      <div class="field"><label>Note</label><input id="epNote" type="text" value="${esc(p.note||'')}"></div>
+      <div class="field"><label>Address</label><input id="epAddress" type="text" value="${esc(p.address||'')}"></div>
+      <div class="field-row">
+        <div class="field"><label>Phone</label><input id="epPhone" type="text" value="${esc(p.phone||'')}"></div>
+        <div class="field"><label>Pieces</label><input id="epPieces" type="number" min="1" value="${p.pieces||1}"></div>
+      </div>
+      <div class="field"><label>Note / contents</label><input id="epNote" type="text" value="${esc(p.note||'')}"></div>
+      <div class="field">
+        <label>Package contents</label>
+        <div class="item-rows-head"><span>Description</span><span>Qty</span></div>
+        <div class="item-rows" id="epItemRows">${(p.items&&p.items.length?p.items:[{id:uid('i'),description:'',qty:1}]).map((it,i)=>itemRowHtml(it,i)).join('')}</div>
+        <button type="button" class="btn btn-outline btn-sm" id="epAddItemBtn" style="width:auto;margin-top:4px;">+ Add item</button>
+      </div>
       <div class="field-row">
         <div class="field"><label>Courier</label><input id="epCourier" type="text" value="${esc(p.courier||'')}"></div>
         <div class="field"><label>Tracking number</label><input id="epTracking" type="text" value="${esc(p.trackingNumber||'')}"></div>
       </div>
+      <div class="field"><label>Weight, kg</label><input id="epWeight" type="number" min="0" step="0.01" value="${p.weightKg||''}"></div>
       <div class="field">
         <label>Status</label>
         <select id="epStatus">
@@ -1775,7 +2308,6 @@ function renderEditParcelModal(parcelId){
           <option value="exception" ${p.status==='exception'?'selected':''}>Exception</option>
         </select>
       </div>
-      ${p.ship24TrackerId ? `<div class="dim" style="font-size:12px;margin-bottom:14px;">This parcel is tracked automatically. Changing status here overrides it manually.</div>` : ''}
       <button class="btn btn-primary" id="saveEditParcelBtn">Save Changes</button>
     </div>
   </div>`;
@@ -1784,32 +2316,41 @@ function bindEditParcelModal(parcelId){
   const overlay = document.getElementById('modalOverlay');
   overlay.addEventListener('click', e=>{ if(e.target.id==='modalOverlay') closeModal(); });
   document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
+  const epItemRows = document.getElementById('epItemRows');
+  const epAddItemBtn = document.getElementById('epAddItemBtn');
+  if(epItemRows && epAddItemBtn) bindItemRowsWrap(epItemRows, epAddItemBtn);
   document.getElementById('saveEditParcelBtn').addEventListener('click', async (e)=>{
     const p = state.parcels.find(x=>x.id===parcelId);
     if(!p) return;
     const customerName = document.getElementById('epCustomer').value.trim();
+    const address = document.getElementById('epAddress').value.trim();
+    const phone = document.getElementById('epPhone').value.trim();
     const note = document.getElementById('epNote').value.trim();
     const courier = document.getElementById('epCourier').value.trim();
     const trackingNumber = document.getElementById('epTracking').value.trim();
+    const pieces = Math.max(1, parseInt(document.getElementById('epPieces').value, 10) || 1);
+    const weightKg = parseFloat(document.getElementById('epWeight').value) || 0;
+    const items = epItemRows ? collectItems(epItemRows) : (p.items||[]);
     const status = document.getElementById('epStatus').value;
     if(!customerName){ toast('Customer name is required', 'error'); return; }
+    const dateVal = document.getElementById('epDate').value;
+    const timeVal = document.getElementById('epTime').value;
+    let createdAt = p.createdAt;
+    if(dateVal && timeVal){
+      const combined = new Date(`${dateVal}T${timeVal}`).getTime();
+      if(!isNaN(combined)) createdAt = combined;
+    }
     const btn = e.currentTarget; btn.disabled = true;
     const wasDelivered = p.status === 'delivered';
-    p.customerName = customerName; p.note = note; p.courier = courier; p.trackingNumber = trackingNumber;
-    p.status = status;
+    p.customerName = customerName; p.address = address; p.phone = phone; p.note = note;
+    p.courier = courier; p.trackingNumber = trackingNumber; p.pieces = pieces; p.weightKg = weightKg; p.items = items;
+    p.status = status; p.createdAt = createdAt;
     if(status === 'delivered' && !wasDelivered) p.deliveredAt = Date.now();
     if(status !== 'delivered') p.deliveredAt = null;
     const ok = await saveParcels();
     if(!ok){ btn.disabled = false; toast("Saved locally, but couldn't sync — tap Retry sync at the top", 'error'); return; }
     toast('Parcel updated', 'success');
     closeModal();
-    if(status === 'delivered' && !wasDelivered){
-      try{
-        await supabaseClient.functions.invoke('ship24', {
-          body: { action:'notify-delivered', parcelId: p.id, customerName: p.customerName }
-        });
-      }catch(err){ console.error('delivered notification failed', err); }
-    }
   });
 }
 
@@ -1934,7 +2475,16 @@ function openRequestModal(p){
       ${multi ? `
       <div class="field">
         <label>Color / size</label>
-        <select id="reqVariant">${variants.map(v=>`<option value="${v.id}">${esc(variantLabel(v))} — ${v.qty||0} in stock</option>`).join('')}</select>
+        <div class="variant-select" id="reqVariantSelect">
+          <button type="button" class="variant-select-trigger" id="reqVariantTrigger">
+            <span class="vs-current" id="reqVariantCurrent">${variantCurrentHtml(v0)}</span>
+            <span class="vs-chevron">${iconChevronDown()}</span>
+          </button>
+          <div class="variant-select-menu" id="reqVariantMenu" hidden>
+            ${variants.map(v=>variantOptionHtml(v, v.id===v0.id)).join('')}
+          </div>
+        </div>
+        <input type="hidden" id="reqVariant" value="${v0.id}">
       </div>` : ''}
       <div class="faint" style="font-size:12px;margin-bottom:6px;" id="reqStockHint">Currently ${v0?v0.qty||0:0} ${esc(p.unit||'units')} in stock</div>
       ${v0 && variantIsLow(v0) ? `<div class="variant-low-hint low" id="reqLowHint">This color/size is low in stock.</div>` : `<div class="variant-low-hint" id="reqLowHint"></div>`}
@@ -1962,6 +2512,26 @@ function bindRequestModal(p){
   document.getElementById('qtyMinus').addEventListener('click', ()=>{ qtyInput.value = Math.max(1, (+qtyInput.value||1)-1); });
   document.getElementById('qtyPlus').addEventListener('click', ()=>{ qtyInput.value = (+qtyInput.value||1)+1; });
   const reqVariant = document.getElementById('reqVariant');
+  const reqVariantWrap = document.getElementById('reqVariantSelect');
+  if(reqVariantWrap){
+    const trigger = document.getElementById('reqVariantTrigger');
+    const menu = document.getElementById('reqVariantMenu');
+    const current = document.getElementById('reqVariantCurrent');
+    const closeMenu = ()=>{ reqVariantWrap.classList.remove('open'); menu.hidden = true; };
+    const openMenu = ()=>{ reqVariantWrap.classList.add('open'); menu.hidden = false; };
+    trigger.addEventListener('click', (e)=>{ e.stopPropagation(); menu.hidden ? openMenu() : closeMenu(); });
+    menu.querySelectorAll('.variant-select-option').forEach(opt=>{
+      opt.addEventListener('click', ()=>{
+        const vid = opt.dataset.vid;
+        reqVariant.value = vid;
+        menu.querySelectorAll('.variant-select-option').forEach(o=>o.classList.toggle('selected', o===opt));
+        current.innerHTML = variantCurrentHtml(findVariant(p, vid));
+        closeMenu();
+        reqVariant.dispatchEvent(new Event('change'));
+      });
+    });
+    overlay.addEventListener('click', (e)=>{ if(!reqVariantWrap.contains(e.target)) closeMenu(); });
+  }
   const stockHint = document.getElementById('reqStockHint');
   const lowHint = document.getElementById('reqLowHint');
   function refreshHint(){
@@ -2031,7 +2601,7 @@ function renderRequestsModal(){
         <button class="modal-close" id="modalCloseBtn">${iconClose()}</button>
       </div>
       ${list.length ? list.slice(0,50).map(r=>renderRequestRow(r, isAdmin())).join('') :
-        `<div class="empty" style="padding:30px 10px;">${iconBell()}<div class="t">No requests yet</div><div class="d">${mine ? "Requests you send from a product's page will show up here." : "When a team member requests stock, it'll show up here in real time."}</div></div>`}
+        `<div class="empty" style="padding:30px 10px;">${wrapEmptyIcon(iconBell())}<div class="t">No requests yet</div><div class="d">${mine ? "Requests you send from a product's page will show up here." : "When a team member requests stock, it'll show up here in real time."}</div></div>`}
     </div>
   </div>`;
 }
@@ -2377,6 +2947,22 @@ function bindShell(){
   if(state.view === 'history'){
     const search = document.getElementById('searchInput');
     if(search) search.addEventListener('input', e=>{ state.searchQuery = e.target.value; render(); });
+    const clearBtn = document.getElementById('clearHistoryBtn');
+    if(clearBtn) clearBtn.addEventListener('click', ()=>{
+      openConfirmModal({
+        title: 'Clear all history?',
+        message: `Delete all ${state.history.length} logged movements? This cannot be undone.`,
+        confirmLabel: 'Clear all',
+        danger: true,
+        onConfirm: async ()=>{
+          state.history = [];
+          const ok = await saveStock();
+          state.modal = null;
+          render();
+          toast(ok ? 'Stock history cleared' : "Cleared locally, but couldn't sync — tap Retry sync at the top", ok?'success':'error');
+        }
+      });
+    });
   }
   if(state.view === 'team') bindTeamView();
   if(state.view === 'parcels') bindParcelsView();
@@ -2646,9 +3232,12 @@ function bindTeamView(){
 function iconHome(){ return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>`; }
 function iconBox(){ return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8l-9-5-9 5 9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>`; }
 function iconScan(){ return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 012-2h2"/><path d="M17 3h2a2 2 0 012 2v2"/><path d="M21 17v2a2 2 0 01-2 2h-2"/><path d="M7 21H5a2 2 0 01-2-2v-2"/><line x1="7" y1="12" x2="17" y2="12"/></svg>`; }
+function iconCamera(){ return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>`; }
 function iconClock(){ return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>`; }
+function wrapEmptyIcon(svg){ return `<div class="empty-icon">${svg}</div>`; }
 function iconTeam(){ return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>`; }
 function iconTruck(){ return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="14" height="11" rx="1"/><path d="M15 10h4l3 3v4h-7z"/><circle cx="6" cy="19" r="2"/><circle cx="17.5" cy="19" r="2"/></svg>`; }
+function iconExternal(){ return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>`; }
 function iconLogout(){ return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>`; }
 function iconMenu(){ return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>`; }
 function iconMountainMark(){ return `<svg viewBox="0 0 64 44" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 38 L18 14 L26 24 L34 8 L62 38" stroke="#ffffff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M10 38 L22 20 L28 27" stroke="#ffffff" stroke-width="5" opacity="0.55" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>`; }
